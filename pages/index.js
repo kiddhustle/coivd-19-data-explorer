@@ -1,48 +1,114 @@
-import { useRouter } from 'next/router';
+import React, {useState, useEffect} from 'react'
+import NoSSR from 'react-no-ssr';
+import Layout from '../components/MyLayout';
+import Link from 'next/link'
+import Router, { useRouter } from 'next/router';
 import useSWR from 'swr';
+// import Plot from 'react-plotly.js';
+import { Bar, BarChart, Legend,  LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-function fetcher(url) {
-  return fetch(url).then(r => r.json());
+import { getChartData, getCountryData, addExtraSeriesData } from '../utils/country'
+import next from 'next';
+
+// import Plotly from 'plotly.js-dist'
+
+
+export function fetcher(url) {
+    return fetch(url).then(r => r.json());
 }
 
 export default function Index() {
-  const { query } = useRouter();
-  const { data, error } = useSWR(
-    `/api/randomQuote${query.author ? '?author=' + query.author : ''}`,
-    fetcher
-  );
-  // The following line has optional chaining, added in Next.js v9.1.5,
-  // is the same as `data && data.author`
-  const author = data?.author;
-  let quote = data?.quote;
+    const [mounted, setMounted] = useState(false);
+    const [dataset, setDataset] = useState({})
+    const { query } = useRouter();
+    const { data, error } = useSWR(
+        `https://pomber.github.io/covid19/timeseries.json`,
+        fetcher,
+        {
+            onError: (err, key, config) => {
+                console.log('err', err)
+                console.log('key', key)
+                console.log('config', config)
 
-  if (!data) quote = 'Loading...';
-  if (error) quote = 'Failed to fetch the quote.';
+            },
+            onSuccess: (data, key, config) => {
+                const newData = {}
+                Object.keys(data).forEach((name) => {
+                    const country = data[name]
+                    newData[name] = country.map((entry) => addExtraSeriesData(entry, name))
+                })
+                setDataset(newData)
+            },
+            initialData: {}
+        }
+    );
 
-  return (
-    <main className="center">
-      <div className="quote">{quote}</div>
-      {author && <span className="author">- {author}</span>}
+    const countryNames = Object.keys(dataset)
+    const chartData = getChartData(dataset)
+    console.log('chartData', chartData)
 
-      <style jsx>{`
-        main {
-          width: 90%;
-          max-width: 900px;
-          margin: 300px auto;
-          text-align: center;
-        }
-        .quote {
-          font-family: cursive;
-          color: #e243de;
-          font-size: 24px;
-          padding-bottom: 10px;
-        }
-        .author {
-          font-family: sans-serif;
-          color: #559834;
-          font-size: 20px;
-        }
-      `}</style>
-    </main>
-  );
+    return (
+        <Layout>
+            <p>Home page</p>
+            <div>
+                <NoSSR>
+                <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={chartData} onClick={(e)=> {
+                        if(!e) {return}
+                            const nextUrl = `/countries/${e.activeLabel}`
+                            Router.push(nextUrl)
+                            console.log(`Clicked label: ${nextUrl}`)
+                        }}>
+                        <XAxis dataKey="countryName" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="confirmed" fill="#8884d8" />
+                        <Bar dataKey="recovered" fill="#82ca9d" />
+                        <Bar dataKey="deaths" fill="#aa0000" />
+                    </BarChart>
+                </ResponsiveContainer>
+                </NoSSR>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Date</th>
+                        <th>Confirmed</th>
+                        <th>Deaths</th>
+                        <th>Recovered</th>
+                        <th>Suffering</th>
+                        <th>Mortality Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {countryNames.map((name) => {
+                        const countrySeries = dataset[name]
+                        const lastEntryIndex = countrySeries.length - 1
+                        const {
+                            date, confirmed, deaths, recovered, suffering, mortalityRate
+                        } = countrySeries[lastEntryIndex]
+
+                        return (<tr key={name}>
+                            <td title="country">
+                                <Link href={`/countries/${name}`}>
+                                    <a>{name}</a>
+                                </Link>
+                                </td>
+                            <td title="date">{date}</td>
+                            <td title="confirmed">{confirmed}</td>
+                            <td title="deaths">{deaths}</td>
+                            <td title="recovered">{recovered}</td>
+                            <td title="sufferers (approx)">{suffering}</td>
+                            <td title="mortality rate">{(mortalityRate * 100).toFixed(2)}%</td>
+                        </tr>
+                        )
+                    })
+                    }
+                </tbody>
+            </table>
+
+        </Layout>
+    );
 }
