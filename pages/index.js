@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 import NoSSR from 'react-no-ssr';
 import Layout from '../components/MyLayout';
 import Link from 'next/link'
@@ -12,40 +13,42 @@ import next from 'next';
 
 // import Plotly from 'plotly.js-dist'
 
+export const DATA_URL = `https://pomber.github.io/covid19/timeseries.json`
 
 export function fetcher(url) {
     return fetch(url).then(r => r.json());
 }
 
-export default function Index() {
+export default function Index(props) {
     const [mounted, setMounted] = useState(false);
-    const [dataset, setDataset] = useState({})
+    const {dataset} = props
+    // const [dataset, setDataset] = useState({})
     const { query } = useRouter();
-    const { data, error } = useSWR(
-        `https://pomber.github.io/covid19/timeseries.json`,
-        fetcher,
-        {
-            onError: (err, key, config) => {
-                console.log('err', err)
-                console.log('key', key)
-                console.log('config', config)
+    // const { data, error } = useSWR(
+    //     `https://pomber.github.io/covid19/timeseries.json`,
+    //     fetcher,
+    //     {
+    //         onError: (err, key, config) => {
+    //             console.log('err', err)
+    //             console.log('key', key)
+    //             console.log('config', config)
 
-            },
-            onSuccess: (data, key, config) => {
-                const newData = {}
-                Object.keys(data).forEach((name) => {
-                    const country = data[name]
-                    newData[name] = country.map((entry) => addExtraSeriesData(entry, name))
-                })
-                setDataset(newData)
-            },
-            initialData: {}
-        }
-    );
+    //         },
+    //         onSuccess: (data, key, config) => {
+    //             const newData = {}
+    //             Object.keys(data).forEach((name) => {
+    //                 const country = data[name]
+    //                 newData[name] = country.map((entry) => addExtraSeriesData(entry, name))
+    //             })
+    //             setDataset(newData)
+    //         },
+    //         initialData: {}
+    //     }
+    // );
 
     const countryNames = Object.keys(dataset)
     const chartData = getChartData(dataset)
-    console.log('chartData', chartData)
+    // console.log('chartData', chartData)
 
     return (
         <Layout>
@@ -111,4 +114,22 @@ export default function Index() {
 
         </Layout>
     );
+}
+
+export async function getStaticProps({ params }) {
+    // Fetch necessary data for the blog post using params.id
+    const res = await axios.get(DATA_URL)
+    const { data } = await res
+
+    const dataset = {}
+    Object.keys(data).forEach((name) => {
+        const country = data[name]
+        dataset[name] = country.map((entry) => addExtraSeriesData(entry, name))
+    })
+    
+    return {
+        props: {
+            dataset
+        }
+    }
 }

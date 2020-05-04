@@ -2,36 +2,40 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import useSWR from 'swr';
 import NoSSR from 'react-no-ssr';
+import axios from 'axios'
 import { Bar, BarChart, Legend, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import Layout from '../../components/MyLayout'
 import { getChartData, getCountryData, addExtraSeriesData } from '../../utils/country'
 import {fetcher} from '../index'
 
-export default () => {
+export const DATA_URL = `https://pomber.github.io/covid19/timeseries.json`
+
+export default (props) => {
     const router = useRouter();
     const {countryName} = router.query
-    const [countryDataset, setCountryDataset] = useState([])
-    console.log('countryName', countryName)
-    const { data, error } = useSWR(
-        `https://pomber.github.io/covid19/timeseries.json`,
-        fetcher,
-        {
-            onError: (err, key, config) => {
-                console.log('err', err)
-                console.log('key', key)
-                console.log('config', config)
+    const {countryDataset} = props
+    // const [countryDataset, setCountryDataset] = useState([])
+    // console.log('countryName', countryName)
+    // const { data, error } = useSWR(
+    //     DATA_URL,
+    //     fetcher,
+    //     {
+    //         onError: (err, key, config) => {
+    //             console.log('err', err)
+    //             console.log('key', key)
+    //             console.log('config', config)
 
-            },
-            onSuccess: (data, key, config) => {
-                console.log('data', data)
-                console.log('countryName', countryName)
-                const country = data[countryName]
-                const dataset = country.map((entry) => addExtraSeriesData(entry, countryName))
-                setCountryDataset(dataset)
-            },
-            initialData: {}
-        }
-    );
+    //         },
+    //         onSuccess: (data, key, config) => {
+    //             console.log('data', data)
+    //             console.log('countryName', countryName)
+    //             const country = data[countryName]
+    //             const dataset = country.map((entry) => addExtraSeriesData(entry, countryName))
+    //             setCountryDataset(dataset)
+    //         },
+    //         initialData: {}
+    //     }
+    // );
     return (
         <Layout>
             <h1>{router.query.countryName}</h1>
@@ -86,10 +90,38 @@ export default () => {
     );
 };
 
-// export async function getStaticPaths() {
-//     // Return a list of possible value for id
-// }
+export async function getStaticPaths(context) {
+    // Return a list of possible value for id
+    try {
+        const res = await axios.get(DATA_URL)
+        const {data} = await res
+        // console.log('Object.keys(data)', Object.keys(data))
+        const paths = Object.keys(data).map((countryName) => ({
+            params: {
+                countryName,
+            }
+        }))
 
-// export async function getStaticProps({ params }) {
-//     // Fetch necessary data for the blog post using params.id
-// }
+        // console.log('paths', paths)
+
+        return {paths, fallback: false}
+    } catch (err) {
+        console.log(err)
+        throw err
+    }
+    
+}
+
+export async function getStaticProps({ params }) {
+    // Fetch necessary data for the blog post using params.id
+    const res = await axios.get(DATA_URL)
+    const {data} = await res
+    const {countryName} = params
+    const country = data[countryName]
+    const dataset = country.map((entry) => addExtraSeriesData(entry, countryName))
+    return {
+        props: {
+            countryDataset: dataset
+        }
+    }
+}
