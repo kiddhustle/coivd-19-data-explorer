@@ -1,1 +1,0 @@
-self.__BUILD_MANIFEST = (function(a,b){return {"/":[a,b],"/countries/[countryName]":[a,b],"/index":[a,b],"/quotes":[a]}}("static\u002Fchunks\u002F88562713346e2cf77e3935c7ef7dce73cdaf4f5c.2a0d55879481b557690e.js","static\u002Fchunks\u002Fdfce8b9f91eef0246dcbbfc9469f618043546add.4d55c0f10018df068d48.js"));self.__BUILD_MANIFEST_CB && self.__BUILD_MANIFEST_CB()
