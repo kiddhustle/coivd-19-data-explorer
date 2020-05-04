@@ -24,9 +24,7 @@ test_app:
 pages:
     stage: deploy
     script:
-        - npm run build
-        - npm run export -o out
-        - mv out public
+        - npm run build && npm run export && mv out public
     artifacts:
         paths:
             - public
