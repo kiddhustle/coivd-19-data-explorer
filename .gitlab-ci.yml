@@ -1,7 +1,7 @@
 image: node:14-slim
 stages:
     # - build
-    - test
+    # - test
     - deploy
 
 before_script:
@@ -16,10 +16,10 @@ cache:
 #     script:
 #         - npm run build
 
-test_app:
-    stage: test
-    script:
-        - npm run test
+# test_app:
+#     stage: test
+#     script:
+#         - npm run test
 
 pages:
     stage: deploy
