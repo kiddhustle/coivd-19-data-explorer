@@ -1,0 +1,30 @@
+image: node:14-slim
+stages:
+    - build
+    - test
+    - deploy
+
+before_script:
+  - node -v
+  - npm i
+
+build_app:
+    stage: build
+    script:
+        - npm run build
+
+test_app:
+    stage: test
+    script:
+        - npm run test
+
+pages:
+    stage: deploy
+    script:
+        - npm run build
+        - npm run export -o public
+    artifacts:
+        paths:
+            - public
+        # expire_in: 1h
+    only: feature/covid-data
