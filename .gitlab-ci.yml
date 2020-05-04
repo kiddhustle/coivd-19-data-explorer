@@ -25,7 +25,7 @@ pages:
     stage: deploy
     script:
         - npm run build
-        - npm run export -o public
+        - npm run export
     artifacts:
         paths:
             - public
