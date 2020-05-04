@@ -1,6 +1,6 @@
 image: node:14-slim
 stages:
-    - build
+    # - build
     - test
     - deploy
 
@@ -11,10 +11,10 @@ before_script:
 cache:
   key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
 
-build_app:
-    stage: build
-    script:
-        - npm run build
+# build_app:
+#     stage: build
+#     script:
+#         - npm run build
 
 test_app:
     stage: test

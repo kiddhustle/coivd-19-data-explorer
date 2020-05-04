@@ -45,8 +45,8 @@ export const getAggregateData = (countryData) => {
 
 export const getChartData = (dataset) => {
     const keys = Object.keys(dataset)
-    console.log('keys', keys)
-    console.log('dataset', dataset)
+    // console.log('keys', keys)
+    // console.log('dataset', dataset)
     
     return keys.map((countryName) => {
         const countryData = dataset[countryName]
