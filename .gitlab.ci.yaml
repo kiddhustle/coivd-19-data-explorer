@@ -27,4 +27,4 @@ pages:
         paths:
             - public
         # expire_in: 1h
-    only: master
+    only: feature/covid-data
