@@ -23,7 +23,7 @@
     "dev": "next",
     "build": "next build",
     "deploy": "next export && gh-pages -d out",
-    "export": "next export -o public",
+    "export": "next export -o out",
     "start": "next start",
     "test": "node_modules/.bin/jest",
     "test:watch": "jest --watch",
