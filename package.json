@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "homepage": "https://kiddhustle.github.io/covid-19-data-explorer",
+  "homepage": "https://kiddhustle.github.io/coivd-19-data-explorer",
   "dependencies": {
     "axios": "^0.19.2",
     "enzyme": "^3.11.0",
