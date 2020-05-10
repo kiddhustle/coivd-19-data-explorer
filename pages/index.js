@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
+import { API_DATA_ENDPOINT } from '../constants'
+import api from '../utils/api'
 import NoSSR from 'react-no-ssr';
 import Layout from '../components/MyLayout';
 import Link from 'next/link'
@@ -14,6 +16,7 @@ import next from 'next';
 // import Plotly from 'plotly.js-dist'
 
 export const DATA_URL = `https://pomber.github.io/covid19/timeseries.json`
+export const DATA_ENDPOINT = `/covid19/timeseries.json`
 
 export function fetcher(url) {
     return fetch(url).then(r => r.json());
@@ -95,7 +98,7 @@ export default function Index(props) {
 
                         return (<tr key={name}>
                             <td title="country">
-                                <Link href={`/countries/${name}`}>
+                                <Link href={`/countries/${name}`} as={`countries/${name}.html`}>
                                     <a>{name}</a>
                                 </Link>
                                 </td>
@@ -118,13 +121,13 @@ export default function Index(props) {
 
 export async function getStaticProps({ params }) {
     // Fetch necessary data for the blog post using params.id
-    const res = await axios.get(DATA_URL)
+    const res = await api.get(API_DATA_ENDPOINT)
     const { data } = await res
 
     const dataset = {}
     Object.keys(data).forEach((name) => {
         const country = data[name]
-        dataset[name] = country.map((entry) => addExtraSeriesData(entry, name))
+        dataset[name] = country.map((entry) => addExtraSeriesData({entry, name}))
     })
     
     return {

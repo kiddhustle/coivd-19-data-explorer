@@ -1,4 +1,4 @@
-import {getAggregateData, getCountryData} from './country'
+import {addExtraSeriesData, getAggregateData, getCountryData} from './country'
 
 const sum = (...args) => {
     let nums = args
@@ -33,6 +33,7 @@ describe('sum function', () => {
     const result = sum(...args)
     expect(result).toEqual(15)
 })
+
 describe('getCountryData', () => {
     it('should run test', () => {
         expect(1).toEqual(1)
@@ -62,6 +63,14 @@ describe('getCountryData', () => {
 
     describe('getAggregateData', () => {
         let result = getAggregateData(data)
+        expect()
+    })
+
+    describe('addExtraSeriesData', () => {
+        Object.keys(data).forEach((name) => {
+            const country = data[name]
+            dataset[name] = country.map((entry) => addExtraSeriesData({ entry, name }))
+        })
     })
     
 })

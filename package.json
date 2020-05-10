@@ -6,6 +6,7 @@
   "homepage": "https://kiddhustle.github.io/coivd-19-data-explorer",
   "dependencies": {
     "axios": "^0.19.2",
+    "axios-cache-adapter": "^2.5.0",
     "enzyme": "^3.11.0",
     "isomorphic-unfetch": "^3.0.0",
     "next": "^9.3.1",
@@ -21,7 +22,8 @@
   },
   "scripts": {
     "dev": "next",
-    "build": "next build",
+    "build": "next build && next export",
+    "clean": "rm -Rf out",
     "deploy": "next export && gh-pages -d out",
     "export": "next export",
     "start": "next start",

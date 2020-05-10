@@ -25,7 +25,7 @@ export const getCountryData = (countrySeries) => {
     return out;
 }
 
-export const addExtraSeriesData = (entry, countryName) => {
+export const addExtraSeriesData = ({entry = null, countryName = null} = {}) => {
     const { confirmed, deaths, recovered} = entry
     return {
         ...entry,
