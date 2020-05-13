@@ -127,7 +127,7 @@ export async function getStaticProps({ params }) {
     const dataset = {}
     Object.keys(data).forEach((name) => {
         const country = data[name]
-        dataset[name] = country.map((entry) => addExtraSeriesData({entry, name}))
+        dataset[name] = country.map((entry, i) => addExtraSeriesData({entry, name}))
     })
     
     return {

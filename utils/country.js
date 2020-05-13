@@ -25,13 +25,34 @@ export const getCountryData = (countrySeries) => {
     return out;
 }
 
-export const addExtraSeriesData = ({entry = null, countryName = null} = {}) => {
+export const addExtraSeriesData = ({entry = null, countryName = null, prevEntry = {}} = {}) => {
     const { confirmed, deaths, recovered} = entry
+    
+    const {
+        confirmed: prevConfirmed = 0,
+        deaths: prevDeaths = 0,
+        recovered: prevRecovered = 0
+    } = prevEntry
+    
+    const mortalityRate = (deaths === 0 || confirmed === 0) ?0 : deaths / confirmed
+    const suffering = confirmed - (deaths + recovered)
+    const prevSuffering = prevConfirmed - (prevDeaths + prevRecovered)
+    // change
+    const confirmedChange = confirmed - prevConfirmed
+    const deathsChange = deaths - prevDeaths
+    const recoveredChange = recovered - prevRecovered
+    const sufferingChange = suffering - prevSuffering
+    
     return {
         ...entry,
+        suffering,
         countryName,
-        mortalityRate: (deaths === 0 || confirmed === 0) ? 0 : deaths / confirmed,
-        suffering: confirmed - (deaths + recovered)
+        confirmedChange,
+        deathsChange,
+        recoveredChange,
+        sufferingChange,
+        mortalityRate,
+        
     }
 }
 export const getAggregateData = (countryData) => {

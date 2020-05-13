@@ -16,6 +16,8 @@ export default (props) => {
     const router = useRouter();
     const {countryName} = router.query
     const {countryDataset} = props
+    const firstRelevantValueIndex = countryDataset.findIndex((i) => i.confirmed >= 1)
+    const countryDatasetTrunc = countryDataset.slice(firstRelevantValueIndex)
 
     return (
         <Layout>
@@ -23,7 +25,7 @@ export default (props) => {
             <div>
                 <NoSSR>
                     <ResponsiveContainer width="100%" height={400}>
-                        <LineChart data={countryDataset}>
+                        <LineChart data={countryDatasetTrunc}>
                             <XAxis dataKey="date" />
                             <YAxis />
                             <Tooltip />
@@ -41,25 +43,34 @@ export default (props) => {
                     <tr>
                         <th>Date</th>
                         <th>Confirmed</th>
+                        <th>Confirmed Change</th>
                         <th>Deaths</th>
+                        <th>Deaths Change</th>
                         <th>Recovered</th>
+                        <th>Recovered Change</th>
                         <th>Suffering</th>
+                        <th>Suffering Change</th>
                         <th>Mortality Rate</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {countryDataset.map((data) => {
+                    {countryDatasetTrunc.map((entry, i) => {
                         const {
-                            countryName, date, confirmed, deaths,
-                            recovered, suffering, mortalityRate
-                        } = data
+                            countryName, date, mortalityRate,
+                            confirmed, deaths, recovered, suffering,
+                            confirmedChange, deathsChange, recoveredChange, sufferingChange
+                        } = entry
 
                         return (<tr key={date}>
                             <td title="date">{date}</td>
                             <td title="confirmed">{confirmed}</td>
+                            <td title="confirmed">{confirmedChange}</td>
                             <td title="deaths">{deaths}</td>
+                            <td title="deathsChange">{deathsChange}</td>
                             <td title="recovered">{recovered}</td>
+                            <td title="recoveredChange">{recoveredChange}</td>
                             <td title="sufferers (approx)">{suffering}</td>
+                            <td title="sufferers change (approx)">{sufferingChange}</td>
                             <td title="mortality rate">{(mortalityRate * 100).toFixed(2)}%</td>
                         </tr>
                         )
@@ -100,7 +111,10 @@ export async function getStaticProps({ params }) {
     const {countryName} = params
     console.log('countryName', countryName)
     const country = data[countryName]
-    const dataset = country.map((entry) => addExtraSeriesData({entry, countryName}))
+    const dataset = country.map((entry, i) => {
+        const prevEntry = i > 0 ? country[i - 1] : null
+        return addExtraSeriesData({entry, countryName, prevEntry})}
+        )
     return {
         props: {
             countryDataset: dataset

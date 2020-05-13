@@ -5,6 +5,17 @@ const sum = (...args) => {
     return nums.reduce((a, b) => {return a + b}, 0)
 }
 
+const SERIES_ENTRY_KEYS = [
+    'date', 'countryName',
+    'confirmed', 'deaths', 'recovered', 'suffering',
+    'confirmedChange', 'deathsChange', 'recoveredChange', 'sufferingChange',
+    'mortalityRate'
+]
+
+const SERIES_ENTRY_KEYS_NONDATA = [
+    'date', 'countryName'
+]
+
 const data = {
     "United Kingdom": [
         {
@@ -67,10 +78,43 @@ describe('getCountryData', () => {
     })
 
     describe('addExtraSeriesData', () => {
-        Object.keys(data).forEach((name) => {
-            const country = data[name]
-            dataset[name] = country.map((entry) => addExtraSeriesData({ entry, name }))
+        const dataset = {}
+        const countryNames = Object.keys(data)
+        countryNames.forEach((countryName) => {
+            const country = data[countryName]
+            dataset[countryName] = country.map((entry) => addExtraSeriesData({ entry, countryName }))
         })
+
+        it('should have series entries with expected keys', () => {
+            countryNames.forEach((countryName) => {
+                const country = data[countryName]
+                country.map((entry) => {
+                    Object.keys(entry).map((key) => {
+                        expect(SERIES_ENTRY_KEYS.indexOf(key) > -1).toEqual(true)
+                    })
+                })
+            })
+        })
+
+        // it('should have zero prev entry values on first in series', () => {
+        //     console.log('dataset', dataset)
+        //     countryNames.forEach((countryName) => {
+        //         console.log('countryName', countryName)
+        //         const country = dataset[countryName]
+        //         console.log('country', country)
+        //         const firstEntry = country[0]
+                
+        //         console.log('firstEntry', firstEntry)
+        //         for (let prop in firstEntry) {
+        //             console.log('prop', prop)
+        //             if (SERIES_ENTRY_KEYS_NONDATA.indexOf(prop) > -1) {
+        //                 continue
+        //             }
+        //             expect(firstEntry[prop]).toEqual(0)
+        //         }
+        //     })
+        // })
+
     })
     
 })
